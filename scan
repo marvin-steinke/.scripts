@@ -1,0 +1,31 @@
+#!/bin/bash
+
+FILENAME=${1:-scan_$(date +%F_%T)}.pdf
+PAGES=${2:-1}
+
+printf "starting scan...\n\n"
+for (( i = 1; i <= $PAGES; i++ )); do
+    scanimage --device "airscan:w0:HP Inc. HP Laser MFP 135w" \
+        --format=tiff > /tmp/scan.tiff
+    echo "scan of page #$i complete"
+    tiff2pdf /tmp/scan.tiff -o /tmp/scan$i.pdf
+    rm /tmp/scan.tiff
+    if [[ $i -ne $PAGES ]]; then
+        echo "<press enter to scan next page>"
+        read
+    fi
+done
+
+INPUT="/tmp/scan1.pdf"
+for (( i = 2; i <= $PAGES; i++ )); do
+    INPUT+=" /tmp/scan$i.pdf"
+done
+
+printf "\ndone. saving as \"$FILENAME\"\n"
+
+gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/printer \
+    -dNOPAUSE -dQUIET -dBATCH -sOutputFile="$FILENAME" $INPUT
+
+for (( i = 1; i <= $PAGES; i++ )); do
+    rm /tmp/scan$i.pdf
+done
