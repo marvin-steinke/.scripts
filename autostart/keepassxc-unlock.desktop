@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=Unlock KeypassXC
+Comment=Starts and unlocks KeepassXC at startup
+Exec=sh /home/marvinsteinke/.config/autostart/unlock_keepass.sh
+Type=Application
